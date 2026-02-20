@@ -1,23 +1,36 @@
-#!/usr/bin/python3
-"""Script that lists all State objects and corresponding City objects"""
-import sys
-from relationship_state import Base, State
-from relationship_city import City
+#!/usr/bin/env python3
+"""List all State objects and their City objects from the database."""
+
+from sys import argv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, joinedload
+from relationship_state import State
+from relationship_city import City
 
-if __name__ == "__main__":
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost/{}'.format(
-        sys.argv[1], sys.argv[2], sys.argv[3]), pool_pre_ping=True)
-    Base.metadata.create_all(engine)
 
+def list_states_cities(engine):
+    """Print all states and their cities ordered by state.id and city.id."""
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    states = session.query(State).order_by(State.id).all()
+    # Load all states with their cities in one query
+    states = session.query(State).options(joinedload(State.cities)).order_by(State.id).all()
+
     for state in states:
-        print("{}: {}".format(state.id, state.name))
-        for city in sorted(state.cities, key=lambda x: x.id):
-            print("    {}: {}".format(city.id, city.name))
+        print(f"{state.id}: {state.name}")
+        # Cities sorted by id
+        for city in sorted(state.cities, key=lambda c: c.id):
+            print(f"    {city.id}: {city.name}")
 
     session.close()
+
+
+if __name__ == "__main__":
+    if len(argv) != 4:
+        print("Usage: ./101-relationship_states_cities_list.py <username> <password> <database>")
+        exit(1)
+
+    user, password, db = argv[1], argv[2], argv[3]
+    # Connect to MySQL
+    engine = create_engine(f"mysql+mysqldb://{user}:{password}@localhost:3306/{db}")
+    list_states_cities(engine)
