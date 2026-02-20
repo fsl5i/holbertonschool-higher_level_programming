@@ -1,5 +1,9 @@
 #!/usr/bin/python3
-"""Module that defines MyInt class inheriting from int with inverted == and !="""
+"""
+Module that defines MyInt class inheriting from int
+with inverted == and !=
+"""
+
 
 class MyInt(int):
     """MyInt: rebel integer with inverted equality"""
