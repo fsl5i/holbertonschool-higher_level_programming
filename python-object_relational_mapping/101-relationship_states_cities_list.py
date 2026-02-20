@@ -31,6 +31,7 @@ if __name__ == "__main__":
         exit(1)
 
     user, password, db = argv[1], argv[2], argv[3]
+
     # Connect to MySQL
     engine = create_engine(f"mysql+mysqldb://{user}:{password}@localhost:3306/{db}")
     list_states_cities(engine)
